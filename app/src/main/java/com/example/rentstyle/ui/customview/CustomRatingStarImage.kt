@@ -9,7 +9,7 @@ import com.example.rentstyle.R
 
 class CustomRatingStarImage @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
+    attrs: AttributeSet? = null
 ) : AppCompatImageView(context, attrs) {
 
     private var customAttribute: Int = 0

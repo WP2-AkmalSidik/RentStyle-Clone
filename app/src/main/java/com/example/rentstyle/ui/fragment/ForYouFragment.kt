@@ -4,6 +4,7 @@ import ProductAdapter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +23,12 @@ import com.example.rentstyle.helpers.GridSpacingItemDecoration
 import com.example.rentstyle.helpers.adapter.ImageSliderAdapter
 import com.example.rentstyle.model.Product
 import com.example.rentstyle.model.network.ApiConfig
-import kotlinx.coroutines.Dispatchers
+import com.example.rentstyle.ui.fragment.HomeFragmentDirections
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ForYouFragment : Fragment() {
-    private var _binding: FragmentForYouBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentForYouBinding
+    private val binding get() = _binding
 
     private lateinit var carousel: ViewPager2
     private lateinit var carouselAdapter: ImageSliderAdapter
@@ -42,7 +42,11 @@ class ForYouFragment : Fragment() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val slideRunnable = Runnable {
-        carousel.currentItem = if (carousel.currentItem == 2) 0 else carousel.currentItem + 1
+        if (carousel.currentItem == 2) {
+            carousel.currentItem = 0
+        } else {
+            carousel.currentItem += 1
+        }
     }
 
     override fun onCreateView(
@@ -53,7 +57,7 @@ class ForYouFragment : Fragment() {
 
         createCarouselInstance()
         createProductRecyclerViewInstance()
-        fetchData()
+        fetchFilteredProducts()
         return binding.root
     }
 
@@ -100,7 +104,11 @@ class ForYouFragment : Fragment() {
     private fun createCarouselInstance() {
         carousel = binding.vpCarousel
 
-        val imageList = arrayListOf(R.drawable.img_placeholder, R.drawable.img_placeholder, R.drawable.img_placeholder)
+        val imageList = arrayListOf(
+            R.drawable.img_placeholder,
+            R.drawable.img_placeholder,
+            R.drawable.img_placeholder
+        )
         carouselAdapter = ImageSliderAdapter(requireContext(), imageList, "Banner")
 
         carousel.apply {
@@ -125,33 +133,55 @@ class ForYouFragment : Fragment() {
         })
     }
 
-    private fun fetchData() {
-        // Menggunakan coroutine untuk memanggil suspend function
+    private fun fetchFilteredProducts() {
         lifecycleScope.launch {
             try {
-                val products = withContext(Dispatchers.IO) {
-                    ApiConfig.getApiService().getProducts(page = 1, size = 100) // Parameter pagination
+                // Fetch products with highest ratings
+                val highestRatingResponse = ApiConfig.getApiService().getFilteredProducts("Tertinggi", 1, 10)
+                if (highestRatingResponse.isSuccessful) {
+                    highestRatingResponse.body()?.let { updateHighestRatingAdapter(it) }
+                } else {
+                    val errorBody = highestRatingResponse.errorBody()?.string()
+                    showErrorLog("Failed to load highest rating products. Status Code: ${highestRatingResponse.code()}, Error: $errorBody")
                 }
-                updateAdapters(products)
+
+                // Fetch new products
+                val newProductResponse = ApiConfig.getApiService().getFilteredProducts("Terbaru", 1, 10)
+                if (newProductResponse.isSuccessful) {
+                    newProductResponse.body()?.let { updateNewProductAdapter(it) }
+                } else {
+                    val errorBody = newProductResponse.errorBody()?.string()
+                    showErrorLog("Failed to load new products. Status Code: ${newProductResponse.code()}, Error: $errorBody")
+                }
+
+                // Fetch recommendation products
+                val recommendationResponse = ApiConfig.getApiService().getProducts(1, 10)
+                if (recommendationResponse.isSuccessful) {
+                    recommendationResponse.body()?.let { updateRecommendationAdapter(it) }
+                } else {
+                    val errorBody = recommendationResponse.errorBody()?.string()
+                    showErrorLog("Failed to load recommended products. Status Code: ${recommendationResponse.code()}, Error: $errorBody")
+                }
             } catch (e: Exception) {
-                // Tangani kesalahan
                 e.printStackTrace()
+                showErrorLog("An error occurred: ${e.message}")
             }
         }
     }
 
-    private fun updateAdapters(products: List<Product>) {
-        val highestRatedProducts = products.sortedByDescending { it.avgRating }.take(10)
-        val newProducts = products.sortedByDescending { it.id }.take(10) // Assuming 'id' increments with new products
-
-        highestRatingAdapter.updateData(highestRatedProducts)
-        newProductAdapter.updateData(newProducts)
-        recommendationProductAdapter.updateData(products) // Assuming recommendation based on all products
+    private fun updateHighestRatingAdapter(products: List<Product>) {
+        highestRatingAdapter.updateData(products)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        handler.removeCallbacks(slideRunnable)
-        _binding = null
+    private fun updateNewProductAdapter(products: List<Product>) {
+        newProductAdapter.updateData(products)
+    }
+
+    private fun updateRecommendationAdapter(products: List<Product>) {
+        recommendationProductAdapter.updateData(products)
+    }
+
+    private fun showErrorLog(message: String) {
+        Log.e("ForYouFragment", message)
     }
 }

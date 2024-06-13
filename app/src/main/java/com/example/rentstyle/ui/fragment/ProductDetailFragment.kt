@@ -1,46 +1,32 @@
 package com.example.rentstyle.ui.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.rentstyle.R
 import com.example.rentstyle.databinding.FragmentProductDetailBinding
-import com.example.rentstyle.helpers.GridSpacingItemDecoration
 import com.example.rentstyle.helpers.adapter.ImageSliderAdapter
-import com.example.rentstyle.helpers.adapter.RecyclerDummyAdapter
 import com.example.rentstyle.helpers.adapter.ReviewDummyAdapter
+import com.example.rentstyle.model.data.response.ProductDetailResponse
+import com.example.rentstyle.model.network.ApiConfig
+import kotlinx.coroutines.launch
 
 class ProductDetailFragment : Fragment() {
-    private lateinit var _binding: FragmentProductDetailBinding
-    private val binding get() = _binding
 
-    private lateinit var carousel: ViewPager2
-    private lateinit var carouselAdapter : ImageSliderAdapter
-    private lateinit var productName: TextView
-    private lateinit var productPrice: TextView
-    private lateinit var productRating: TextView
-    private lateinit var groupShop: ConstraintLayout
-    private lateinit var productShopName: TextView
-    private lateinit var productShopLocation: TextView
-    private lateinit var productCategory: TextView
-    private lateinit var productColor: TextView
-    private lateinit var productSize: TextView
-    private lateinit var productDescription: TextView
-    private lateinit var btnViewMore: TextView
-    private lateinit var productReviewScore: TextView
+    private var _binding: FragmentProductDetailBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var rvProductReview: RecyclerView
+    private lateinit var carouselAdapter: ImageSliderAdapter
     private lateinit var reviewAdapter: ReviewDummyAdapter
-    private lateinit var rvProductRecommendation: RecyclerView
-    private lateinit var productAdapter: RecyclerDummyAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,84 +34,77 @@ class ProductDetailFragment : Fragment() {
     ): View {
         _binding = FragmentProductDetailBinding.inflate(inflater, container, false)
 
-        binding.apply {
-            carousel = vpProductImageCarousel
-
-            productName = tvProductName
-            productPrice = tvProductPrice
-            productRating = tvProductRating
-            groupShop = groupProductShop
-            productShopName = tvProductShopName
-            productShopLocation = tvShopLocation
-            productCategory = tvProductCategory
-            productColor = tvProductColor
-            productSize = tvProductSize
-            productDescription = tvProductDescription
-            btnViewMore = btnViewMoreDescription
-            productReviewScore = tvProductRatingScore
-            rvProductReview = rvProductRating
-            rvProductRecommendation = rvRecommendation
-        }
-
+        // Setup toolbar
         binding.mainToolbar.tvToolbarTitle.text = "Product Detail"
         binding.mainToolbar.ivBackButton.setOnClickListener {
             findNavController().navigateUp()
         }
 
         setUpImageCarousel()
-
-        productName.text = "Kostum Honkai: Star Rail Black Swan Cosplay Black Swan Costume Black Swan Kostum Full Set"
-        productPrice.text = "590.500 / 2 hari"
-        productRating.text = "Rating 4.5"
-        productShopName.text = "Toko Maju Jaya"
-        productShopLocation.text = "Jakarta"
-        productCategory.text = "Baju cosplay"
-        productColor.text = "Biru"
-        productSize.text = "XL"
-        productDescription.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        productReviewScore.text = "Rating 4.5"
-
-        btnViewMore.setOnClickListener {
-            if (productDescription.maxLines == 2) {
-                productDescription.maxLines = 999
-                btnViewMore.text = "View less"
-            } else {
-                productDescription.maxLines = 2
-                btnViewMore.text = "View more"
-            }
-        }
-
-        reviewAdapter = ReviewDummyAdapter()
-        productAdapter = RecyclerDummyAdapter()
-
-        rvProductReview.adapter = reviewAdapter
-
-        rvProductRecommendation.addItemDecoration(GridSpacingItemDecoration(2,25,true))
-        rvProductRecommendation.adapter = productAdapter
-
-        productAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
-            override fun onClick(position: Int, image: ImageView) {
-                findNavController().navigate(ProductDetailFragmentDirections.actionNavigationProductDetailSelf())
-            }
-        })
-
-        groupShop.setOnClickListener {
-            findNavController().navigate(ProductDetailFragmentDirections.actionNavigationProductDetailToNavigationShopDetail())
-        }
+        fetchProductDetail()
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setUpImageCarousel() {
         val imageList = arrayListOf(R.drawable.img_placeholder, R.drawable.img_placeholder, R.drawable.img_placeholder)
         carouselAdapter = ImageSliderAdapter(requireContext(), imageList, "Product")
 
-        carousel.apply {
+        binding.vpProductImageCarousel.apply {
             adapter = carouselAdapter
             clipToPadding = false
             clipChildren = false
             offscreenPageLimit = 3
             getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+        }
+    }
+
+    private fun fetchProductDetail() {
+        val productId = arguments?.getString("productId") ?: return
+        val apiService = ApiConfig.getApiService()
+
+        // Using coroutine to call the suspend function
+        lifecycleScope.launch {
+            try {
+                val product = apiService.getProductDetail(productId)
+                bindProductData(product)
+            } catch (e: Exception) {
+                // Handle the error
+                e.printStackTrace()
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun bindProductData(product: ProductDetailResponse) {
+        binding.apply {
+            tvProductName.text = product.productName
+            tvProductPrice.text = "Rp ${product.rentPrice} / hari"
+
+            val averageRating = if (product.reviews.isNotEmpty()) {
+                product.reviews.map { it.rating }.average()
+            } else {
+                0.0
+            }
+            tvProductRating.text = "Rating %.1f".format(averageRating)
+            tvProductShopName.text = product.seller.sellerName
+            tvShopLocation.text = product.seller.city
+            tvProductCategory.text = product.category
+            tvProductColor.text = product.color
+            tvProductSize.text = product.size
+            tvProductDescription.text = product.desc
+
+            // Initialize and set up RecyclerView for reviews
+            reviewAdapter = ReviewDummyAdapter().apply {
+                updateReviews(product.reviews)
+            }
+            rvProductRating.adapter = reviewAdapter
+            rvProductRating.layoutManager = LinearLayoutManager(context)
         }
     }
 }

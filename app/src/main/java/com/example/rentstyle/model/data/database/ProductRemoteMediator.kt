@@ -1,7 +1,7 @@
-package com.example.rentstyle.model.data.network
+package com.example.rentstyle.model.data.database
 
 import androidx.paging.*
-import com.example.rentstyle.model.data.database.ProductDao
+import com.example.rentstyle.model.Product
 import com.example.rentstyle.model.data.local.LocalProduct
 import com.example.rentstyle.model.network.ApiService
 import retrofit2.HttpException
@@ -32,15 +32,19 @@ class ProductRemoteMediator(
 
         return try {
             val pageSize = state.config.pageSize
-            val products = apiService.getProducts(page, pageSize)
-
-            productDao.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    productDao.clearAll()
+            val response = apiService.getProducts(page, pageSize)
+            if (response.isSuccessful) {
+                val products = response.body().orEmpty()
+                productDao.withTransaction {
+                    if (loadType == LoadType.REFRESH) {
+                        productDao.clearAll()
+                    }
+                    productDao.insertAll(products.map { it.toLocalProduct() })
                 }
-                productDao.insertAll(products.map { it.toLocalProduct() })
+                MediatorResult.Success(endOfPaginationReached = products.isEmpty())
+            } else {
+                MediatorResult.Error(HttpException(response))
             }
-            MediatorResult.Success(endOfPaginationReached = products.isEmpty())
         } catch (exception: IOException) {
             MediatorResult.Error(exception)
         } catch (exception: HttpException) {

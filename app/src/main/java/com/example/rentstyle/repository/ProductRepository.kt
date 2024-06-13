@@ -3,7 +3,7 @@ package com.example.rentstyle.repository
 import androidx.paging.*
 import com.example.rentstyle.model.data.database.ProductDatabase
 import com.example.rentstyle.model.data.local.LocalProduct
-import com.example.rentstyle.model.data.network.ProductRemoteMediator
+import com.example.rentstyle.model.data.database.ProductRemoteMediator
 import com.example.rentstyle.model.network.ApiService
 import kotlinx.coroutines.flow.Flow
 
