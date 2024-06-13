@@ -60,6 +60,7 @@ dependencies {
     //Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.room.ktx)
 
     //Testing
     testImplementation(libs.junit)
@@ -73,4 +74,10 @@ dependencies {
     // Coroutines for asynchronous programming
     implementation (libs.kotlinx.coroutines.core)
     implementation (libs.kotlinx.coroutines.android)
+
+    //Room
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.room.common)
+    implementation (libs.androidx.room.runtime)
+    implementation (libs.androidx.paging.runtime)
 }

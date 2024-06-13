@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "91324532145",
+    "project_id": "rentstyle",
+    "storage_bucket": "rentstyle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:91324532145:android:8aa519dbae7d6af919a990",
+        "android_client_info": {
+          "package_name": "com.example.rentstyle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "91324532145-45ba1cfkv7vdc24ith7hsqh5her250ih.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rentstyle",
+            "certificate_hash": "ca30e11a4a61af980f9e86beb022612c72080916"
+          }
+        },
+        {
+          "client_id": "91324532145-g5bu1utu30c4rj4833mvctjn8sp9g0v3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCP-j-pIqWYmxDLUYc4wRbCH_w4ltjOOsU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "91324532145-g5bu1utu30c4rj4833mvctjn8sp9g0v3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

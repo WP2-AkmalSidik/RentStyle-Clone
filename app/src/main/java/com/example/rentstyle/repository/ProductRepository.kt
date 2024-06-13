@@ -1,13 +1,26 @@
 package com.example.rentstyle.repository
 
-import com.example.rentstyle.model.Product
-import com.example.rentstyle.model.network.ApiConfig
-import retrofit2.Call
+import androidx.paging.*
+import com.example.rentstyle.model.data.database.ProductDatabase
+import com.example.rentstyle.model.data.local.LocalProduct
+import com.example.rentstyle.model.data.network.ProductRemoteMediator
+import com.example.rentstyle.model.network.ApiService
+import kotlinx.coroutines.flow.Flow
 
-class ProductRepository {
-    private val apiService = ApiConfig.getApiService()
+@OptIn(ExperimentalPagingApi::class)
+class ProductRepository(
+    private val database: ProductDatabase,
+    private val apiService: ApiService
+) {
 
-    suspend fun fetchProducts(): Call<List<Product>> {
-        return apiService.getProducts()
+    fun getProducts(): Flow<PagingData<LocalProduct>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false
+            ),
+            remoteMediator = ProductRemoteMediator(apiService, database.productDao()),
+            pagingSourceFactory = { database.productDao().getProducts() }
+        ).flow
     }
 }

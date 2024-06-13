@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rentstyle.R
 import com.example.rentstyle.model.Product
 
+@Suppress("DEPRECATION")
 class ProductAdapter(private var products: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     private var listener: OnClickListener? = null
@@ -19,6 +21,7 @@ class ProductAdapter(private var products: List<Product>) : RecyclerView.Adapter
         this.listener = listener
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(newProducts: List<Product>) {
         products = newProducts
         notifyDataSetChanged()
@@ -43,6 +46,7 @@ class ProductAdapter(private var products: List<Product>) : RecyclerView.Adapter
         private val productLocation: TextView = itemView.findViewById(R.id.tv_product_location)
         private val productImage: ImageView = itemView.findViewById(R.id.iv_product_image)
 
+        @SuppressLint("SetTextI18n")
         fun bind(product: Product) {
             productName.text = product.productName
             productPrice.text = "Rp. ${product.rentPrice}"

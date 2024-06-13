@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -21,16 +22,16 @@ import com.example.rentstyle.helpers.GridSpacingItemDecoration
 import com.example.rentstyle.helpers.adapter.ImageSliderAdapter
 import com.example.rentstyle.model.Product
 import com.example.rentstyle.model.network.ApiConfig
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ForYouFragment : Fragment() {
-    private lateinit var _binding : FragmentForYouBinding
-    private val binding get() = _binding
+    private var _binding: FragmentForYouBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var carousel: ViewPager2
-    private lateinit var carouselAdapter : ImageSliderAdapter
+    private lateinit var carouselAdapter: ImageSliderAdapter
 
     private lateinit var highestRatingRecyclerView: RecyclerView
     private lateinit var newProductRecyclerView: RecyclerView
@@ -41,11 +42,7 @@ class ForYouFragment : Fragment() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val slideRunnable = Runnable {
-        if (carousel.currentItem == 2) {
-            carousel.currentItem = 0
-        } else {
-            carousel.currentItem += 1
-        }
+        carousel.currentItem = if (carousel.currentItem == 2) 0 else carousel.currentItem + 1
     }
 
     override fun onCreateView(
@@ -80,7 +77,10 @@ class ForYouFragment : Fragment() {
         highestRatingAdapter.setOnClickListener(object : ProductAdapter.OnClickListener {
             override fun onClick(position: Int, image: ImageView) {
                 val extras = FragmentNavigatorExtras(image to "shared_product_image")
-                findNavController().navigate(HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail(), navigatorExtras = extras)
+                findNavController().navigate(
+                    HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail(),
+                    navigatorExtras = extras
+                )
             }
         })
 
@@ -126,21 +126,18 @@ class ForYouFragment : Fragment() {
     }
 
     private fun fetchData() {
-        val client = ApiConfig.getApiService().getProducts()
-        client.enqueue(object : Callback<List<Product>> {
-            override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
-                if (response.isSuccessful) {
-                    val products = response.body()
-                    if (products != null) {
-                        updateAdapters(products)
-                    }
+        // Menggunakan coroutine untuk memanggil suspend function
+        lifecycleScope.launch {
+            try {
+                val products = withContext(Dispatchers.IO) {
+                    ApiConfig.getApiService().getProducts(page = 1, size = 100) // Parameter pagination
                 }
+                updateAdapters(products)
+            } catch (e: Exception) {
+                // Tangani kesalahan
+                e.printStackTrace()
             }
-
-            override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                // Tangani kegagalan
-            }
-        })
+        }
     }
 
     private fun updateAdapters(products: List<Product>) {
@@ -150,5 +147,11 @@ class ForYouFragment : Fragment() {
         highestRatingAdapter.updateData(highestRatedProducts)
         newProductAdapter.updateData(newProducts)
         recommendationProductAdapter.updateData(products) // Assuming recommendation based on all products
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        handler.removeCallbacks(slideRunnable)
+        _binding = null
     }
 }
