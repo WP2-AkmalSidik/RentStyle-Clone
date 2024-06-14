@@ -70,6 +70,7 @@ dependencies {
     //retrofit
     implementation (libs.retrofit)
     implementation (libs.retrofit2.converter.gson)
+    implementation (libs.logging.interceptor)
 
     // Coroutines for asynchronous programming
     implementation (libs.kotlinx.coroutines.core)
@@ -80,4 +81,9 @@ dependencies {
     implementation(libs.androidx.room.common)
     implementation (libs.androidx.room.runtime)
     implementation (libs.androidx.paging.runtime)
+
+    //show image teh product
+    implementation (libs.picasso)
+    implementation (libs.glide.v4160)
+    annotationProcessor (libs.compiler)
 }

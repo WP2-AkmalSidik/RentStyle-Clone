@@ -1,6 +1,7 @@
 package com.example.rentstyle.model
 
 import com.example.rentstyle.model.data.local.LocalProduct
+import com.example.rentstyle.model.data.response.Review
 import com.google.gson.annotations.SerializedName
 
 data class Product(
@@ -9,9 +10,12 @@ data class Product(
     val category: String,
     val color: String,
     val size: String,
+    val city: String,
+    @SerializedName("image") val image: String?, // Nullable String
     @SerializedName("rent_price") val rentPrice: Int,
     @SerializedName("count_num_rating") val countNumRating: Int,
-    @SerializedName("avg_rating") val avgRating: Float
+    @SerializedName("avg_rating") val avgRating: Float,
+    @SerializedName("reviews") val reviews: List<Review>? // Tambahkan ini jika dibutuhkan
 ) {
     fun toLocalProduct(): LocalProduct {
         return LocalProduct(
@@ -22,7 +26,9 @@ data class Product(
             size = size,
             rentPrice = rentPrice,
             countNumRating = countNumRating,
-            avgRating = avgRating
+            avgRating = avgRating,
+            city = city,
+            image = image
         )
     }
 }

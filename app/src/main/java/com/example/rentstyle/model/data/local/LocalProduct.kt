@@ -11,6 +11,8 @@ data class LocalProduct(
     val category: String,
     val color: String,
     val size: String,
+    val city: String,
+    @SerializedName("image") val image: String?,
     @SerializedName("rent_price") val rentPrice: Int,
     @SerializedName("count_num_rating") val countNumRating: Int,
     @SerializedName("avg_rating") val avgRating: Float

@@ -1,9 +1,10 @@
+// ReviewDummyAdapter.kt
 package com.example.rentstyle.helpers.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rentstyle.R
 import com.example.rentstyle.databinding.ProductRatingItemBinding
 import com.example.rentstyle.model.data.response.Review
 
@@ -13,17 +14,10 @@ class ReviewDummyAdapter : RecyclerView.Adapter<ReviewDummyAdapter.ViewHolder>()
 
     inner class ViewHolder(private val binding: ProductRatingItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(review: Review) {
-            with(binding) {
-                tvUsername.text = review.id
-                ivReviewRating.ratingScore = review.rating
-                tvReviewDescription.text = review.review
-                if (review.image != null) {
-                    ivReviewPhoto.setImageResource(R.drawable.img_placeholder) // Replace with your actual image loading logic
-
-                } else {
-                    ivReviewPhoto.setImageResource(R.drawable.img_placeholder)
-                }
-            }
+            binding.tvUsername.text = review.userId
+            binding.ivReviewRating.ratingScore = review.rating.toFloat().toInt()
+            binding.tvReviewDescription.text = review.review
+            // Set image dan data lain yang sesuai
         }
     }
 
@@ -36,10 +30,9 @@ class ReviewDummyAdapter : RecyclerView.Adapter<ReviewDummyAdapter.ViewHolder>()
         holder.bind(reviews[position])
     }
 
-    override fun getItemCount(): Int {
-        return reviews.size
-    }
+    override fun getItemCount(): Int = reviews.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateReviews(newReviews: List<Review>) {
         reviews = newReviews
         notifyDataSetChanged()

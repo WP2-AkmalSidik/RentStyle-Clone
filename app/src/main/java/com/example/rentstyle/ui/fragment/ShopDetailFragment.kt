@@ -40,17 +40,17 @@ class ShopDetailFragment : Fragment() {
 
         rvAllProducts.addItemDecoration(GridSpacingItemDecoration(2,25,true))
 
-        recommendationAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
-            override fun onClick(position: Int, image: ImageView) {
-                findNavController().navigate(ShopDetailFragmentDirections.actionNavigationShopDetailToNavigationProductDetail())
-            }
-        })
-
-        allProductsAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
-            override fun onClick(position: Int, image: ImageView) {
-                findNavController().navigate(ShopDetailFragmentDirections.actionNavigationShopDetailToNavigationProductDetail())
-            }
-        })
+//        recommendationAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
+//            override fun onClick(position: Int, image: ImageView) {
+//                findNavController().navigate(ShopDetailFragmentDirections.actionNavigationShopDetailToNavigationProductDetail())
+//            }
+//        })
+//
+//        allProductsAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
+//            override fun onClick(position: Int, image: ImageView) {
+//                findNavController().navigate(ShopDetailFragmentDirections.actionNavigationShopDetailToNavigationProductDetail())
+//            }
+//        })
 
         binding.btnShoppingCart.setOnClickListener {
             findNavController().navigate(ShopDetailFragmentDirections.actionNavigationShopDetailToNavigationShoppingCart())

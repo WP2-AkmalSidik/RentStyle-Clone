@@ -50,26 +50,26 @@ class ShoppingCartFragment : Fragment() {
             rvCheckoutDetail = rvProductCoDetail
         }
 
-        shoppingCartAdapter = RecyclerShoppingCartAdapter(dataset)
-        checkoutDetailAdapter = RecyclerCheckOutProductAdapter()
-
-        rvProductShoppingCart.adapter = shoppingCartAdapter
-        rvCheckoutDetail.adapter = checkoutDetailAdapter
-
-        val peekHeightInDp = 140
-        val peekHeightInPx = (peekHeightInDp * requireContext().resources.displayMetrics.density).toInt()
-
-        BottomSheetBehavior.from(binding.sheetShoppingCartDetail).apply {
-            peekHeight = peekHeightInPx
-            this.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        shoppingCartAdapter.setOnClickListener(object : RecyclerShoppingCartAdapter.OnClickListener {
-            override fun onClick(position: Int) {
-                findNavController().navigate(ShoppingCartFragmentDirections.actionNavigationShoppingCartToNavigationProductDetail())
-            }
-
-        })
+//        shoppingCartAdapter = RecyclerShoppingCartAdapter(dataset)
+//        checkoutDetailAdapter = RecyclerCheckOutProductAdapter()
+//
+//        rvProductShoppingCart.adapter = shoppingCartAdapter
+//        rvCheckoutDetail.adapter = checkoutDetailAdapter
+//
+//        val peekHeightInDp = 140
+//        val peekHeightInPx = (peekHeightInDp * requireContext().resources.displayMetrics.density).toInt()
+//
+//        BottomSheetBehavior.from(binding.sheetShoppingCartDetail).apply {
+//            peekHeight = peekHeightInPx
+//            this.state = BottomSheetBehavior.STATE_COLLAPSED
+//        }
+//
+//        shoppingCartAdapter.setOnClickListener(object : RecyclerShoppingCartAdapter.OnClickListener {
+//            override fun onClick(position: Int) {
+//                findNavController().navigate(ShoppingCartFragmentDirections.actionNavigationShoppingCartToNavigationProductDetail())
+//            }
+//
+//        })
 
         btnSelectAllProduct.text = "Select all (5)"
         bottomSheetProductAmount.text = "Subtotal of 5 products"

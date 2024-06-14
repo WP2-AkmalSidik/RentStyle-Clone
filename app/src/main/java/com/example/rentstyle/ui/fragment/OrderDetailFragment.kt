@@ -25,14 +25,14 @@ class OrderDetailFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        productListAdapter = RecyclerCheckOutProductAdapter()
-        binding.rvProductCoDetail.adapter = productListAdapter
-
-        productListAdapter.setOnClickListener(object : RecyclerCheckOutProductAdapter.OnClickListener {
-            override fun onClick(position: Int) {
-                findNavController().navigate(OrderDetailFragmentDirections.actionNavigationOrderDetailToNavigationProductDetail())
-            }
-        })
+//        productListAdapter = RecyclerCheckOutProductAdapter()
+//        binding.rvProductCoDetail.adapter = productListAdapter
+//
+//        productListAdapter.setOnClickListener(object : RecyclerCheckOutProductAdapter.OnClickListener {
+//            override fun onClick(position: Int) {
+//                findNavController().navigate(OrderDetailFragmentDirections.actionNavigationOrderDetailToNavigationProductDetail())
+//            }
+//        })
 
         binding.tvOrderStatus.text = "Selesai"
         binding.tvOrderId.text = "12GHJ234"

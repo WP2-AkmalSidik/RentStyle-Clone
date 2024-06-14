@@ -1,6 +1,6 @@
 package com.example.rentstyle.ui.fragment
 
-import ProductAdapter
+
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,20 +11,23 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.rentstyle.R
 import com.example.rentstyle.databinding.FragmentForYouBinding
 import com.example.rentstyle.helpers.GridSpacingItemDecoration
 import com.example.rentstyle.helpers.adapter.ImageSliderAdapter
+import com.example.rentstyle.helpers.adapter.ProductAdapter
 import com.example.rentstyle.model.Product
 import com.example.rentstyle.model.network.ApiConfig
-import com.example.rentstyle.ui.fragment.HomeFragmentDirections
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 class ForYouFragment : Fragment() {
     private lateinit var _binding: FragmentForYouBinding
@@ -80,25 +83,29 @@ class ForYouFragment : Fragment() {
 
         highestRatingAdapter.setOnClickListener(object : ProductAdapter.OnClickListener {
             override fun onClick(position: Int, image: ImageView) {
-                val extras = FragmentNavigatorExtras(image to "shared_product_image")
-                findNavController().navigate(
-                    HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail(),
-                    navigatorExtras = extras
-                )
+                val product = highestRatingAdapter.getItem(position)
+                navigateToProductDetail(product.id)
             }
         })
 
         newProductAdapter.setOnClickListener(object : ProductAdapter.OnClickListener {
             override fun onClick(position: Int, image: ImageView) {
-                findNavController().navigate(HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail())
+                val product = newProductAdapter.getItem(position)
+                navigateToProductDetail(product.id)
             }
         })
 
         recommendationProductAdapter.setOnClickListener(object : ProductAdapter.OnClickListener {
             override fun onClick(position: Int, image: ImageView) {
-                findNavController().navigate(HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail())
+                val product = recommendationProductAdapter.getItem(position)
+                navigateToProductDetail(product.id)
             }
         })
+    }
+
+    private fun navigateToProductDetail(productId: String) {
+        val action = HomeFragmentDirections.actionNavigationHomeToNavigationProductDetail(productId)
+        findNavController().navigate(action)
     }
 
     private fun createCarouselInstance() {
@@ -141,8 +148,7 @@ class ForYouFragment : Fragment() {
                 if (highestRatingResponse.isSuccessful) {
                     highestRatingResponse.body()?.let { updateHighestRatingAdapter(it) }
                 } else {
-                    val errorBody = highestRatingResponse.errorBody()?.string()
-                    showErrorLog("Failed to load highest rating products. Status Code: ${highestRatingResponse.code()}, Error: $errorBody")
+                    logError(highestRatingResponse)
                 }
 
                 // Fetch new products
@@ -150,8 +156,7 @@ class ForYouFragment : Fragment() {
                 if (newProductResponse.isSuccessful) {
                     newProductResponse.body()?.let { updateNewProductAdapter(it) }
                 } else {
-                    val errorBody = newProductResponse.errorBody()?.string()
-                    showErrorLog("Failed to load new products. Status Code: ${newProductResponse.code()}, Error: $errorBody")
+                    logError(newProductResponse)
                 }
 
                 // Fetch recommendation products
@@ -159,8 +164,7 @@ class ForYouFragment : Fragment() {
                 if (recommendationResponse.isSuccessful) {
                     recommendationResponse.body()?.let { updateRecommendationAdapter(it) }
                 } else {
-                    val errorBody = recommendationResponse.errorBody()?.string()
-                    showErrorLog("Failed to load recommended products. Status Code: ${recommendationResponse.code()}, Error: $errorBody")
+                    logError(recommendationResponse)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -179,6 +183,11 @@ class ForYouFragment : Fragment() {
 
     private fun updateRecommendationAdapter(products: List<Product>) {
         recommendationProductAdapter.updateData(products)
+    }
+
+    private fun logError(response: Response<*>) {
+        val errorBody = response.errorBody()?.string()
+        showErrorLog("Failed to load data. Status Code: ${response.code()}, Error: $errorBody")
     }
 
     private fun showErrorLog(message: String) {

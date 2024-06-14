@@ -1,61 +1,86 @@
+package com.example.rentstyle.helpers.adapter
+
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import com.example.rentstyle.R
 import com.example.rentstyle.model.Product
 
-@Suppress("DEPRECATION")
-class ProductAdapter(private var products: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(private var products: List<Product>) :
+    RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
-    private var listener: OnClickListener? = null
+    private lateinit var context: Context
+    private lateinit var onClickListener: OnClickListener
+
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
+    }
 
     interface OnClickListener {
         fun onClick(position: Int, image: ImageView)
     }
 
-    fun setOnClickListener(listener: OnClickListener) {
-        this.listener = listener
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateData(newProducts: List<Product>) {
-        products = newProducts
-        notifyDataSetChanged()
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.product_image_item, parent, false)
+        context = parent.context
+        val view = LayoutInflater.from(context).inflate(R.layout.product_image_item, parent, false)
         return ProductViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
-        holder.bind(product)
-    }
 
-    override fun getItemCount(): Int = products.size
+        holder.apply {
+            // Load image using Glide
+            Glide.with(context)
+                .load(product.image) // Assuming `image` is the URL to the product image
+                .apply(RequestOptions()
+                    .placeholder(R.drawable.img_placeholder)
+                    .error(R.drawable.img_placeholder))
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(ivProductImage)
 
-    inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val productName: TextView = itemView.findViewById(R.id.tv_product_name)
-        private val productPrice: TextView = itemView.findViewById(R.id.tv_product_price)
-        private val productRating: TextView = itemView.findViewById(R.id.tv_product_rating)
-        private val productLocation: TextView = itemView.findViewById(R.id.tv_product_location)
-        private val productImage: ImageView = itemView.findViewById(R.id.iv_product_image)
+            tvProductName.text = product.productName
+            tvProductPrice.text = "Rp ${product.rentPrice}"
+            tvProductRating.text = product.avgRating.toString()
+            tvProductLocation.text = product.city
 
-        @SuppressLint("SetTextI18n")
-        fun bind(product: Product) {
-            productName.text = product.productName
-            productPrice.text = "Rp. ${product.rentPrice}"
-            productRating.text = product.avgRating.toString()
-            productLocation.text = "Jakarta" // Placeholder, ubah sesuai data
-            // Set image dan data lain yang sesuai
-            itemView.setOnClickListener {
-                listener?.onClick(adapterPosition, productImage)
+            // Handle item click
+            cvProductItem.setOnClickListener {
+                onClickListener.onClick(position, ivProductImage)
             }
         }
+    }
+
+    override fun getItemCount(): Int {
+        return products.size
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(products: List<Product>) {
+        this.products = products
+        notifyDataSetChanged()
+    }
+
+    fun getItem(position: Int): Product {
+        return products[position]
+    }
+
+    inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cvProductItem: CardView = itemView.findViewById(R.id.cv_product_item)
+        val ivProductImage: ImageView = itemView.findViewById(R.id.iv_product_image)
+        val tvProductName: TextView = itemView.findViewById(R.id.tv_product_name)
+        val tvProductPrice: TextView = itemView.findViewById(R.id.tv_product_price)
+        val tvProductRating: TextView = itemView.findViewById(R.id.tv_product_rating)
+        val tvProductLocation: TextView = itemView.findViewById(R.id.tv_product_location)
     }
 }

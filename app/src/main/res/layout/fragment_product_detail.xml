@@ -22,10 +22,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp_product_image_carousel"
+            <ImageView
+                android:id="@+id/ivProductImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_placeholder"
+                android:contentDescription="Gambar Product"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -38,7 +42,7 @@
                 android:layout_marginEnd="50dp"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/vp_product_image_carousel"
+                app:layout_constraintTop_toBottomOf="@id/ivProductImage"
                 tools:text="Kostum Honkai: Star Rail Black Swan Cosplay Black Swan Costume Black Swan Kostum Full Set" />
 
             <ImageView
@@ -51,7 +55,7 @@
                 android:src="@drawable/ic_fav"
                 app:layout_constraintStart_toEndOf="@id/tv_product_name"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/vp_product_image_carousel" />
+                app:layout_constraintTop_toBottomOf="@id/ivProductImage" />
 
             <LinearLayout
                 android:id="@+id/group_price"

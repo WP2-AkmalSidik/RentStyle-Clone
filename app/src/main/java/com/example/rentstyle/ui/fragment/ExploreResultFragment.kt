@@ -50,16 +50,16 @@ class ExploreResultFragment : Fragment() {
 
         })
 
-        productAdapter = RecyclerDummyAdapter()
-        productList.addItemDecoration(GridSpacingItemDecoration(2,25,true))
-        productList.adapter = productAdapter
-
-        productAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
-            override fun onClick(position: Int, image: ImageView) {
-                val extras = FragmentNavigatorExtras(image to "shared_product_image")
-                findNavController().navigate(ExploreResultFragmentDirections.actionNavigationExploreResultToNavigationProductDetail(), navigatorExtras = extras)
-            }
-        })
+//        productAdapter = RecyclerDummyAdapter()
+//        productList.addItemDecoration(GridSpacingItemDecoration(2,25,true))
+//        productList.adapter = productAdapter
+//
+//        productAdapter.setOnClickListener(object : RecyclerDummyAdapter.OnClickListener {
+//            override fun onClick(position: Int, image: ImageView) {
+//                val extras = FragmentNavigatorExtras(image to "shared_product_image")
+//                findNavController().navigate(ExploreResultFragmentDirections.actionNavigationExploreResultToNavigationProductDetail(), navigatorExtras = extras)
+//            }
+//        })
 
         binding.btnShoppingCart.setOnClickListener {
             findNavController().navigate(ExploreResultFragmentDirections.actionNavigationExploreResultToNavigationShoppingCart())
