@@ -1,6 +1,5 @@
 package com.example.rentstyle.ui.fragment
 
-
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,8 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.rentstyle.R
 import com.example.rentstyle.databinding.FragmentForYouBinding
 import com.example.rentstyle.helpers.GridSpacingItemDecoration
@@ -98,7 +95,7 @@ class ForYouFragment : Fragment() {
         recommendationProductAdapter.setOnClickListener(object : ProductAdapter.OnClickListener {
             override fun onClick(position: Int, image: ImageView) {
                 val product = recommendationProductAdapter.getItem(position)
-                navigateToProductDetail(product.id)
+                navigateToProductDetail(product.productId ?: product.id)
             }
         })
     }

@@ -19,7 +19,7 @@ class ProductAdapter(private var products: List<Product>) :
     RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     private lateinit var context: Context
-    private lateinit var onClickListener: OnClickListener
+    private var onClickListener: OnClickListener? = null
 
     fun setOnClickListener(onClickListener: OnClickListener) {
         this.onClickListener = onClickListener
@@ -42,7 +42,7 @@ class ProductAdapter(private var products: List<Product>) :
         holder.apply {
             // Load image using Glide
             Glide.with(context)
-                .load(product.image) // Assuming `image` is the URL to the product image
+                .load(product.image)
                 .apply(RequestOptions()
                     .placeholder(R.drawable.img_placeholder)
                     .error(R.drawable.img_placeholder))
@@ -56,7 +56,7 @@ class ProductAdapter(private var products: List<Product>) :
 
             // Handle item click
             cvProductItem.setOnClickListener {
-                onClickListener.onClick(position, ivProductImage)
+                onClickListener?.onClick(position, ivProductImage)
             }
         }
     }
